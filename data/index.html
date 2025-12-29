@@ -1,0 +1,130 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Smart Environment Monitor</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css">
+</head>
+<body>
+    
+    <div class="background">
+        <div class="shape shape-1"></div>
+        <div class="shape shape-2"></div>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="header-content">
+                <h2><i class="fas fa-microchip"></i> IoT Dashboard</h2>
+                <div class="status-indicator">
+                    <span id="connectionDot" class="dot offline"></span>
+                    <span id="connectionText">Offline</span>
+                </div>
+            </div>
+            <p class="timestamp">Last Updated: <span id="lastUpdate">--:--:--</span></p>
+        </header>
+        
+        <div class="cards-grid">
+            <div class="card temp-card">
+                <div class="card-header">
+                    <i class="fas fa-thermometer-half icon"></i>
+                    <span>Temperature</span>
+                </div>
+                <div class="card-value">
+                    <span id="temperature">--</span>
+                    <span class="unit">&deg;C</span>
+                </div>
+            </div>
+
+            <div class="card hum-card">
+                <div class="card-header">
+                    <i class="fas fa-tint icon"></i>
+                    <span>Humidity</span>
+                </div>
+                <div class="card-value">
+                    <span id="humidity">--</span>
+                    <span class="unit">%</span>
+                </div>
+            </div>
+
+            <div class="card flame-card" id="flameCard">
+                <div class="card-header">
+                    <i class="fas fa-fire icon"></i>
+                    <span>Fire Status</span>
+                </div>
+                <div class="card-value">
+                    <span id="flame" style="font-size: 1.5rem;">Checking...</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="charts-container">
+            <div class="chart-box">
+                <canvas id="tempChart"></canvas>
+            </div>
+            <div class="chart-box">
+                <canvas id="humChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <script src="script.js"></script> 
+</body>
+</html>
+
+
+<!-- <!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Smart Environment Monitor</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+</head>
+<body>
+    <div class="container">
+        <h2><i class="fas fa-microchip"></i> Monitoring Dashboard</h2>
+        
+        <div class="card temp-card">
+            <i class="fas fa-thermometer-half icon"></i>
+            <div class="data-group">
+                <span class="label">Temperature</span>
+                <span id="temperature" class="value">--</span>
+                <span class="unit">&deg;C</span>
+            </div>
+        </div>
+
+        <div class="card hum-card">
+            <i class="fas fa-tint icon"></i>
+            <div class="data-group">
+                <span class="label">Humidity</span>
+                <span id="humidity" class="value">--</span>
+                <span class="unit">%</span>
+            </div>
+        </div>
+
+        <div class="card flame-card" id="flameCard">
+            <i class="fas fa-fire icon"></i>
+            <div class="data-group">
+                <span class="label">Fire Status</span>
+                <span id="flame" class="value">Checking...</span>
+            </div>
+        </div>
+    </div>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<script src="script.js"></script> </body>
+</html>
+    <script src="script.js"></script>
+</body>
+</html> -->
