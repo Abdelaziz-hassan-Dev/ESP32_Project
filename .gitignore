@@ -1,2 +1,5 @@
 .pio/
 .vscode/
+include/config.h
+lib
+test
