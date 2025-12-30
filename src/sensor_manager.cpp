@@ -12,25 +12,7 @@ void initSensors() {
     }
 }
 
-String readTemperature() {
-    float t = dhtSensor.readTemperature();
-    return isnan(t) ? "--" : String(t);
-}
-
-String readHumidity() {
-    float h = dhtSensor.readHumidity();
-    return isnan(h) ? "--" : String(h);
-}
-
-String readFlameStatus() {
-    int sensorState = digitalRead(FLAME_PIN);
-    return (sensorState == LOW) ? "FIRE DETECTED! ⚠️" : "Safe ✅";
-}
-
-DHT* getDHTInstance() {
-    return &dhtSensor;
-}
-
+// الدوال المستخدمة للمنطق وإرسال البيانات (Logic & Firebase)
 float getRawTemperature() {
     return dhtSensor.readTemperature();
 }

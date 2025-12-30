@@ -1,5 +1,5 @@
-#ifndef SENSOR_MANAGER_H  
-#define SENSOR_MANAGER_H  
+#ifndef SENSOR_MANAGER_H
+#define SENSOR_MANAGER_H
 
 #include <Adafruit_Sensor.h>
 #include <DHT.h>
@@ -7,12 +7,7 @@
 
 void initSensors();
 
-// دوال للعرض (Web Server)
-String readTemperature();
-String readHumidity();
-String readFlameStatus();
-
-// دوال للمنطق (Logic & Telegram) - [جديد]
+// دوال للمنطق (Logic & Telegram & Firebase)
 float getRawTemperature();
 float getRawHumidity();
 bool isFlameDetected();
