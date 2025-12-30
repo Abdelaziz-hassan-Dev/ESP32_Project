@@ -36,7 +36,5 @@ void sendDataToFirebase(float t, float h, String flameStatus) {
         if (!isnan(t)) Firebase.RTDB.setFloat(&fbdo, "/sensor/temperature", t);
         if (!isnan(h)) Firebase.RTDB.setFloat(&fbdo, "/sensor/humidity", h);
         Firebase.RTDB.setString(&fbdo, "/sensor/flame", flameStatus);
-        
-    //   Serial.println("Sent to Firebase");
     }
 }
