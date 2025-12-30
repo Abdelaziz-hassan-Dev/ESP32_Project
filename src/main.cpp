@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include "config.h"
-#include "sensors.h"
+#include "sensor_manager.h"
 #include "telegram_manager.h"
 #include "cloud_manager.h"
 #include "firebase_manager.h" 

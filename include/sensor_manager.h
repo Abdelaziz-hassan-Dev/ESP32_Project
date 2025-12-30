@@ -1,5 +1,5 @@
-#ifndef SENSORS_H
-#define SENSORS_H
+#ifndef SENSOR_MANAGER_H  
+#define SENSOR_MANAGER_H  
 
 #include <Adafruit_Sensor.h>
 #include <DHT.h>

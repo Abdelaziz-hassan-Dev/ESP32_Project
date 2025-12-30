@@ -11,8 +11,6 @@ unsigned long lastFlameAlert = 0;
 void initTelegram() {
     // التلقرام يتطلب اتصال آمن، ولتسهيل الأمر في المشاريع نجعل الشهادة غير مطلوبة
     client.setInsecure();
-    // رسالة ترحيبية عند تشغيل الجهاز
-    // bot.sendMessage(CHAT_ID, "🚀 System Started: Monitoring Active...", "");
 }
 
 void sendTelegramMessage(String message) {

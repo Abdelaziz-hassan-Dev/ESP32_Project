@@ -1,4 +1,4 @@
-#include "sensors.h"
+#include "sensor_manager.h"
 
 // Global sensor instances
 static DHT dhtSensor(DHTPIN, DHTTYPE);
