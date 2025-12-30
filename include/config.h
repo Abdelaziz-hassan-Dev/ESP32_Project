@@ -32,9 +32,6 @@ const String GOOGLE_SCRIPT_ID = "AKfycbyK7Zs1vQiRN2KO69gd8DkRMhxsh5DcoZp9UPLT9XU
 #define DHTPIN 27
 #define DHTTYPE DHT22
 #define FLAME_PIN 14
-
-// Server Port
-#define SERVER_PORT 80
 #define BAUD_RATE 115200
 
 #endif
