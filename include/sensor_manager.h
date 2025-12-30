@@ -7,7 +7,6 @@
 
 void initSensors();
 
-// دوال للمنطق (Logic & Telegram & Firebase)
 float getRawTemperature();
 float getRawHumidity();
 bool isFlameDetected();
