@@ -4,28 +4,20 @@
 #include "sensors.h"
 #include "telegram_manager.h"
 #include "cloud_manager.h"
+#include "firebase_manager.h" 
 
-// مكتبات Firebase
-#include <Firebase_ESP_Client.h>
-#include <addons/TokenHelper.h>
-#include <addons/RTDBHelper.h>
+// توقيتات النظام
+unsigned long lastSystemTick = 0;
+const long SYSTEM_TICK_INTERVAL = 2000;
 
-// متغير لتوقيت فحص التنبيهات (لا نريد الفحص في كل لحظة)
-unsigned long lastCheckTime = 0;
-const long CHECK_INTERVAL = 2000;
 unsigned long lastGoogleLog = 0;
-
-FirebaseData fbdo;
-FirebaseAuth auth;
-FirebaseConfig config;
-
-bool signupOK = false;
-unsigned long sendDataPrevMillis = 0;
 
 void setup() {
     Serial.begin(BAUD_RATE);
+    
+    // 1. تهيئة الأجهزة والاتصال
     initSensors();
-
+    
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     Serial.print("Connecting to WiFi");
     while (WiFi.status() != WL_CONNECTED) {
@@ -34,71 +26,148 @@ void setup() {
     }
     Serial.println("\nConnected!");
 
-    // إعدادات Firebase
-    config.api_key = API_KEY;
-    config.database_url = DATABASE_URL;
-
-    // تسجيل الدخول كمستخدم مجهول (Anonymous) للتسهيل
-    if (Firebase.signUp(&config, &auth, "", "")) {
-        Serial.println("Firebase Connected");
-        signupOK = true;
-    } else {
-        Serial.printf("%s\n", config.signer.signupError.message.c_str());
-    }
-
-    Firebase.begin(&config, &auth);
-    Firebase.reconnectWiFi(true);
-
+    // 2. تهيئة الخدمات السحابية
     initTelegram();
     initCloud(); 
+    initFirebase();
 }
 
 void loop() {
-    // إرسال البيانات إلى Firebase كل 2 ثانية
-    if (Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 2000 || sendDataPrevMillis == 0)) {
-        sendDataPrevMillis = millis();
-
-        float t = getRawTemperature();
-        float h = getRawHumidity();
-        String flameStatus = isFlameDetected() ? "DETECTED" : "Safe";
-
-        // إرسال البيانات (المسارات في الداتابيس ستكون /sensor/temp وهكذا)
-        if (!isnan(t)) Firebase.RTDB.setFloat(&fbdo, "/sensor/temperature", t);
-        if (!isnan(h)) Firebase.RTDB.setFloat(&fbdo, "/sensor/humidity", h);
-        Firebase.RTDB.setString(&fbdo, "/sensor/flame", flameStatus);
-        
-        Serial.println("Sent to Firebase");
-    }
-    //... كود التلقرام ...
     unsigned long currentMillis = millis();
-    
-    // نقوم بفحص القيم كل فترة محددة (Non-blocking delay)
-    if (currentMillis - lastCheckTime >= CHECK_INTERVAL) {
-        lastCheckTime = currentMillis;
-        
-        // جلب القراءات الخام
-        float currentTemp = getRawTemperature();
-        float currentHum = getRawHumidity();
-        bool currentFlame = isFlameDetected();
-        
-        // إرسال القراءات لمدير التنبيهات ليتصرف
-        checkSystemConditions(currentTemp, currentHum, currentFlame);
-    }
-        // 2. إرسال البيانات لجوجل شيت (كل دقيقة مثلاً) - [جديد]
-    if (currentMillis - lastGoogleLog >= LOG_INTERVAL) {
-        // نأخذ قراءات جديدة للتأكد
-        float t = getRawTemperature();
-        float h = getRawHumidity();
-        bool f = isFlameDetected(); // لاحظ أن دالة isFlameDetected ترجع true عند الخطر في كودك
 
-        // التحقق من صلاحية القراءات قبل الإرسال
-        if (!isnan(t) && !isnan(h)) {
-            logDataToGoogleSheet(t, h, f);
+    if (currentMillis - lastSystemTick >= SYSTEM_TICK_INTERVAL) {
+        lastSystemTick = currentMillis;
+
+        float temp = getRawTemperature();
+        float hum = getRawHumidity();
+        bool isFire = isFlameDetected();
+        String flameStr = isFire ? "DETECTED" : "Safe";
+
+        // التحقق من صلاحية البيانات قبل إكمال العمليات (Error Handling)
+        if (isnan(temp) || isnan(hum)) {
+            Serial.println("Error: Failed to read from DHT sensor!");
+            return; // تخطي هذه الدورة إذا كانت القراءة خاطئة
+        }
+
+        sendDataToFirebase(temp, hum, flameStr);
+        checkSystemConditions(temp, hum, isFire);
+
+        // ج) تسجيل البيانات في Google Sheets
+        // هذا الجزء له توقيت خاص (أبطأ)، لذا نضعه داخل شرط فرعي
+        if (currentMillis - lastGoogleLog >= LOG_INTERVAL) {
+            logDataToGoogleSheet(temp, hum, isFire);
             lastGoogleLog = currentMillis;
         }
+        
+    
+     //   Serial.printf("Tick: T=%.1f, H=%.1f, Fire=%s\n", temp, hum, flameStr.c_str());
     }
-
 }
+
+////////////////////////////////////////////////////////
+
+
+// #include <Arduino.h>
+// #include <WiFi.h>
+// #include "config.h"
+// #include "sensors.h"
+// #include "telegram_manager.h"
+// #include "cloud_manager.h"
+
+// // مكتبات Firebase
+// #include <Firebase_ESP_Client.h>
+// #include <addons/TokenHelper.h>
+// #include <addons/RTDBHelper.h>
+
+// // متغير لتوقيت فحص التنبيهات (لا نريد الفحص في كل لحظة)
+// unsigned long lastCheckTime = 0;
+// const long CHECK_INTERVAL = 2000;
+// unsigned long lastGoogleLog = 0;
+
+// FirebaseData fbdo;
+// FirebaseAuth auth;
+// FirebaseConfig config;
+
+// bool signupOK = false;
+// unsigned long sendDataPrevMillis = 0;
+
+// void setup() {
+//     Serial.begin(BAUD_RATE);
+//     initSensors();
+
+//     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+//     Serial.print("Connecting to WiFi");
+//     while (WiFi.status() != WL_CONNECTED) {
+//         delay(1000);
+//         Serial.print(".");
+//     }
+//     Serial.println("\nConnected!");
+
+//     // إعدادات Firebase
+//     config.api_key = API_KEY;
+//     config.database_url = DATABASE_URL;
+
+//     // تسجيل الدخول كمستخدم مجهول (Anonymous) للتسهيل
+//     if (Firebase.signUp(&config, &auth, "", "")) {
+//         Serial.println("Firebase Connected");
+//         signupOK = true;
+//     } else {
+//         Serial.printf("%s\n", config.signer.signupError.message.c_str());
+//     }
+
+//     Firebase.begin(&config, &auth);
+//     Firebase.reconnectWiFi(true);
+
+//     initTelegram();
+//     initCloud(); 
+// }
+
+// void loop() {
+//     // إرسال البيانات إلى Firebase كل 2 ثانية
+//     if (Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 2000 || sendDataPrevMillis == 0)) {
+//         sendDataPrevMillis = millis();
+
+//         float t = getRawTemperature();
+//         float h = getRawHumidity();
+//         String flameStatus = isFlameDetected() ? "DETECTED" : "Safe";
+
+//         // إرسال البيانات (المسارات في الداتابيس ستكون /sensor/temp وهكذا)
+//         if (!isnan(t)) Firebase.RTDB.setFloat(&fbdo, "/sensor/temperature", t);
+//         if (!isnan(h)) Firebase.RTDB.setFloat(&fbdo, "/sensor/humidity", h);
+//         Firebase.RTDB.setString(&fbdo, "/sensor/flame", flameStatus);
+        
+//         Serial.println("Sent to Firebase");
+//     }
+//     //... كود التلقرام ...
+//     unsigned long currentMillis = millis();
+    
+//     // نقوم بفحص القيم كل فترة محددة (Non-blocking delay)
+//     if (currentMillis - lastCheckTime >= CHECK_INTERVAL) {
+//         lastCheckTime = currentMillis;
+        
+//         // جلب القراءات الخام
+//         float currentTemp = getRawTemperature();
+//         float currentHum = getRawHumidity();
+//         bool currentFlame = isFlameDetected();
+        
+//         // إرسال القراءات لمدير التنبيهات ليتصرف
+//         checkSystemConditions(currentTemp, currentHum, currentFlame);
+//     }
+//         // 2. إرسال البيانات لجوجل شيت (كل دقيقة مثلاً) - [جديد]
+//     if (currentMillis - lastGoogleLog >= LOG_INTERVAL) {
+//         // نأخذ قراءات جديدة للتأكد
+//         float t = getRawTemperature();
+//         float h = getRawHumidity();
+//         bool f = isFlameDetected(); // لاحظ أن دالة isFlameDetected ترجع true عند الخطر في كودك
+
+//         // التحقق من صلاحية القراءات قبل الإرسال
+//         if (!isnan(t) && !isnan(h)) {
+//             logDataToGoogleSheet(t, h, f);
+//             lastGoogleLog = currentMillis;
+//         }
+//     }
+
+// }
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////

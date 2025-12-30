@@ -1,13 +1,9 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// // WiFi Credentials
-// static const char* WIFI_SSID = "TurkTelekom_TPED5C_2.4GHz";
-// static const char* WIFI_PASSWORD = "MagicPortal78!";
-
 // WiFi Credentials
-static const char* WIFI_SSID = "zizo_hz5";
-static const char* WIFI_PASSWORD = "22722722";
+#define WIFI_SSID  "zizo_hz5"
+#define WIFI_PASSWORD  "22722722"
 
 // Telegram Credentials
 #define BOT_TOKEN "8446300738:AAGOyDsyEAA4I7MdaPJQaMqyDJBTu-mPtnI"

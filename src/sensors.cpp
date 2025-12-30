@@ -24,7 +24,7 @@ String readHumidity() {
 
 String readFlameStatus() {
     int sensorState = digitalRead(FLAME_PIN);
-    return (sensorState == LOW) ? "DETECTED! 🔥" : "Safe ✅";
+    return (sensorState == LOW) ? "FIRE DETECTED! ⚠️" : "Safe ✅";
 }
 
 DHT* getDHTInstance() {

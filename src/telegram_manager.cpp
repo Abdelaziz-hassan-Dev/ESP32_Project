@@ -12,7 +12,7 @@ void initTelegram() {
     // التلقرام يتطلب اتصال آمن، ولتسهيل الأمر في المشاريع نجعل الشهادة غير مطلوبة
     client.setInsecure();
     // رسالة ترحيبية عند تشغيل الجهاز
-    bot.sendMessage(CHAT_ID, "🚀 System Started: Monitoring Active...", "");
+    // bot.sendMessage(CHAT_ID, "🚀 System Started: Monitoring Active...", "");
 }
 
 void sendTelegramMessage(String message) {
@@ -25,8 +25,8 @@ void checkSystemConditions(float temp, float hum, bool flame) {
     // 1. منطق الحريق (الأولوية القصوى)
     if (flame) {
         if (currentMillis - lastFlameAlert > FLAME_COOLDOWN) {
-            String msg = "🔥 DANGER: Fire Detected! 🔥\n";
-            msg += "Please check the area immediately.";
+            String msg = "⚠️ Fire Detected! ⚠️\n";
+            //msg += "Please check the area immediately.";
             sendTelegramMessage(msg);
             lastFlameAlert = currentMillis;
         }
@@ -35,7 +35,7 @@ void checkSystemConditions(float temp, float hum, bool flame) {
     // 2. منطق الحرارة
     if (!isnan(temp) && temp > TEMP_HIGH_LIMIT) {
         if (currentMillis - lastTempAlert > ALARM_COOLDOWN) {
-            String msg = "⚠️ High Temperature Alert!\n";
+            String msg = "⚠️ High Temperature Alert!⚠️\n";
             msg += "Current Temp: " + String(temp, 1) + "°C\n";
             msg += "Threshold: " + String(TEMP_HIGH_LIMIT, 1) + "°C";
             sendTelegramMessage(msg);
@@ -46,7 +46,7 @@ void checkSystemConditions(float temp, float hum, bool flame) {
     // 3. منطق الرطوبة
     if (!isnan(hum) && hum > HUM_HIGH_LIMIT) {
         if (currentMillis - lastHumAlert > ALARM_COOLDOWN) {
-            String msg = "💧 High Humidity Alert!\n";
+            String msg = "⚠️ High Humidity Alert! ⚠️\n";
             msg += "Current Hum: " + String(hum, 1) + "%\n";
             msg += "Threshold: " + String(HUM_HIGH_LIMIT, 1) + "%";
             sendTelegramMessage(msg);

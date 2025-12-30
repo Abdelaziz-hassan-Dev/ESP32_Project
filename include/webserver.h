@@ -4,7 +4,6 @@
 #include <WiFi.h>
 #include <AsyncTCP.h>
 #include <ESPAsyncWebServer.h>
-#include "web_page.h"
 #include "config.h"
 
 // Initialize web server
