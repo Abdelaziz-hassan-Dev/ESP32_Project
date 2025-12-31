@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <WiFi.h>
-#include "time.h" // مكتبة الوقت الضرورية
+#include "time.h" 
 #include "config.h"
 #include "sensor_manager.h"
 #include "telegram_manager.h"

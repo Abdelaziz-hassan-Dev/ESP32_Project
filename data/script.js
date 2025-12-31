@@ -1,4 +1,4 @@
-// 1. إعدادات Firebase (نفس إعداداتك السابقة)
+// 1. إعدادات Firebase
 const firebaseConfig = {
     apiKey: "AIzaSyDDdgCi-ZwiVJN9xIBd-BsopL8tWbnfZWo",
     authDomain: "esp32-ce491.firebaseapp.com",
@@ -15,36 +15,49 @@ const database = firebase.database();
 
 // ================= إعدادات الرسوم البيانية (Charts) =================
 
-// دالة لإنشاء إعدادات الرسم بشكل موحد
-function createChartConfig(label, color) {
+function createChartConfig(label, color, minVal, maxVal) {
     return {
         type: 'line',
         data: {
-            labels: [], // الوقت
+            labels: [], 
             datasets: [{
                 label: label,
                 data: [],
                 borderColor: color,
-                backgroundColor: color + '33', // شفافية
+                backgroundColor: color + '33',
                 borderWidth: 2,
-                tension: 0.4, // نعومة الخط
+                tension: 0.4,
                 fill: true,
                 pointRadius: 3
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false, 
             scales: {
                 x: { 
-                    display: false // إخفاء محور الوقت لتوفير المساحة
+                    display: true,
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { 
+                        color: '#aaa',
+                        maxTicksLimit: 6,
+                        maxRotation: 0 
+                    }
                 },
                 y: {
+                    suggestedMin: minVal, 
+                    suggestedMax: maxVal,
                     grid: { color: 'rgba(255,255,255,0.1)' },
                     ticks: { color: '#ccc' }
                 }
             },
             plugins: {
-                legend: { labels: { color: '#fff' } }
+                legend: { labels: { color: '#fff' } },
+                tooltip: {
+                    // تحسين التلميح (Tooltip) ليظهر القيمة بوضوح عند تمرير الماوس
+                    mode: 'index',
+                    intersect: false,
+                }
             }
         }
     };
@@ -54,8 +67,8 @@ function createChartConfig(label, color) {
 const tempCtx = document.getElementById('tempChart').getContext('2d');
 const humCtx = document.getElementById('humChart').getContext('2d');
 
-const tempChart = new Chart(tempCtx, createChartConfig('Temperature History', '#ff8c00'));
-const humChart = new Chart(humCtx, createChartConfig('Humidity History', '#00d2ff'));
+const tempChart = new Chart(tempCtx, createChartConfig('Temperature History', '#ff8c00', 10, 30));
+const humChart = new Chart(humCtx, createChartConfig('Humidity History', '#00d2ff', 30, 80));
 
 // ================= استلام البيانات =================
 
@@ -80,14 +93,22 @@ database.ref('/sensor').on('value', (snapshot) => {
     }
 });
 
-// دالة تحديث المخطط (تضيف نقطة وتحذف القديمة)
+// دالة مساعدة للحصول على الوقت بصيغة (HH:MM) فقط
+function getCurrentTimeShort() {
+    const now = new Date();
+    // هذه الدالة تعيد الوقت بدون ثواني (مثلاً 10:30 PM)
+    return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
+
+// دالة تحديث المخطط
 function updateChart(chart, value) {
-    const now = new Date().toLocaleTimeString();
+    // نستخدم الدالة الجديدة لجلب الوقت المختصر
+    const timeString = getCurrentTimeShort();
     
-    chart.data.labels.push(now);
+    chart.data.labels.push(timeString);
     chart.data.datasets[0].data.push(value);
 
-    // الاحتفاظ بآخر 20 قراءة فقط
+    // الاحتفاظ بآخر 20 قراءة
     if(chart.data.labels.length > 20) {
         chart.data.labels.shift();
         chart.data.datasets[0].data.shift();
@@ -117,10 +138,9 @@ function updateFlameStatus(status) {
 
 // دالة تحديث حالة الاتصال والوقت
 function updateConnectionStatus() {
-    const now = new Date();
-    document.getElementById("lastUpdate").innerText = now.toLocaleTimeString();
+    // نستخدم نفس تنسيق الوقت المبسط هنا أيضاً
+    document.getElementById("lastUpdate").innerText = getCurrentTimeShort();
 
-    // تغيير النقطة للأخضر
     const dot = document.getElementById("connectionDot");
     const text = document.getElementById("connectionText");
     
@@ -128,107 +148,13 @@ function updateConnectionStatus() {
     text.innerText = "Live";
 }
 
-// التحقق من حالة الاتصال بـ Firebase نفسه
+// التحقق من حالة الاتصال بـ Firebase
 const connectedRef = firebase.database().ref(".info/connected");
 connectedRef.on("value", (snap) => {
   if (snap.val() === true) {
     console.log("Connected to Firebase");
   } else {
-    // إذا انقطع النت كلياً
     document.getElementById("connectionDot").className = "dot offline";
     document.getElementById("connectionText").innerText = "Offline";
   }
 });
-
-
-
-// // 1. إعدادات مشروعك (تأخذها من Firebase Console -> Project Settings -> General -> CDN)
-// // Your web app's Firebase configuration
-// const firebaseConfig = {
-//   apiKey: "AIzaSyDDdgCi-ZwiVJN9xIBd-BsopL8tWbnfZWo",
-//   authDomain: "esp32-ce491.firebaseapp.com",
-//   databaseURL: "https://esp32-ce491-default-rtdb.firebaseio.com",
-//   projectId: "esp32-ce491",
-//   storageBucket: "esp32-ce491.firebasestorage.app",
-//   messagingSenderId: "1012960274280",
-//   appId: "1:1012960274280:web:84a6c1800fb722cb6d58dd"
-// };
-
-// // 2. تهيئة Firebase
-// firebase.initializeApp(firebaseConfig);
-// const database = firebase.database();
-
-// // 3. الاستماع للبيانات (Realtime Listener)
-// // هذه الدالة تعمل تلقائياً في كل مرة يتغير فيها الرقم في الداتابيس
-// database.ref('/sensor').on('value', (snapshot) => {
-//     const data = snapshot.val();
-    
-//     if (data) {
-//         // تحديث الحرارة
-//         document.getElementById("temperature").innerText = data.temperature.toFixed(1);
-        
-//         // تحديث الرطوبة
-//         document.getElementById("humidity").innerText = data.humidity.toFixed(1);
-        
-//         // تحديث الحريق
-//         const flameStatus = data.flame;
-//         const el = document.getElementById("flame");
-//         const card = document.getElementById("flameCard");
-        
-//         el.innerText = flameStatus;
-        
-//         if(flameStatus === "DETECTED") {
-//             card.classList.remove("flame-safe");
-//             card.classList.add("flame-danger");
-//             el.style.color = "#ff4444";
-//         } else {
-//             card.classList.remove("flame-danger");
-//             card.classList.add("flame-safe");
-//             el.style.color = "#00c851";
-//         }
-//     }
-// });
-
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-// function fetchData(url, elementId) {
-//     var xhttp = new XMLHttpRequest();
-//     xhttp.onreadystatechange = function() {
-//         if (this.readyState == 4 && this.status == 200) {
-//             document.getElementById(elementId).innerText = this.responseText;
-//         }
-//     };
-//     xhttp.open("GET", url, true);
-//     xhttp.send();
-// }
-
-// function updateFlame() {
-//     var xhttp = new XMLHttpRequest();
-//     xhttp.onreadystatechange = function() {
-//         if (this.readyState == 4 && this.status == 200) {
-//             var status = this.responseText;
-//             var el = document.getElementById("flame");
-//             var card = document.getElementById("flameCard");
-            
-//             el.innerText = status;
-
-//             // تغيير التصميم بناء على الحالة
-//             if(status.includes("DETECTED") || status.includes("FIRE")) {
-//                 card.classList.remove("flame-safe");
-//                 card.classList.add("flame-danger");
-//                 el.style.color = "#ff4444";
-//             } else {
-//                 card.classList.remove("flame-danger");
-//                 card.classList.add("flame-safe");
-//                 el.style.color = "#00c851";
-//             }
-//         }
-//     };
-//     xhttp.open("GET", "/flame", true);
-//     xhttp.send();
-// }
-
-// // تشغيل الدوال بشكل دوري
-// setInterval(function() { fetchData("/temperature", "temperature"); }, 2000);
-// setInterval(function() { fetchData("/humidity", "humidity"); }, 2000);
-// setInterval(updateFlame, 1000); // تحديث الحريق كل ثانية
