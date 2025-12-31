@@ -1,21 +1,28 @@
 #include <Arduino.h>
 #include <WiFi.h>
+#include "time.h" // مكتبة الوقت الضرورية
 #include "config.h"
 #include "sensor_manager.h"
 #include "telegram_manager.h"
-#include "cloud_manager.h"    // ضروري لـ Google Sheets
-#include "firebase_manager.h" // ضروري لـ Firebase
+#include "cloud_manager.h"    
+#include "firebase_manager.h" 
 
 unsigned long lastSystemTick = 0;
 const long SYSTEM_TICK_INTERVAL = 2000;
 
-// متغير واحد للتحكم في توقيت الأرشفة للنظامين (لتوحيد الوقت)
 unsigned long lastDataLog = 0;
 
+// إعدادات التوقيت (GMT offset)
+// 3600 ثانية * عدد الساعات. 
+// مثلاً للسودان/مصر (GMT+2) نضع 7200، للسعودية/شرق أفريقيا (GMT+3) نضع 10800
+const long  gmtOffset_sec = 3 * 3600; // عدل الرقم 3 حسب توقيت دولتك
+const int   daylightOffset_sec = 0;   // عادة 0 في الدول العربية
+
 void setup() {
-    Serial.begin(115200); // تأكد من الـ Baud Rate
+    Serial.begin(115200);
     initSensors();
     
+    // 1. الاتصال بالواي فاي
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     Serial.print("Connecting to WiFi");
     while (WiFi.status() != WL_CONNECTED) {
@@ -24,15 +31,25 @@ void setup() {
     }
     Serial.println("\nConnected!");
 
+    // 2. ضبط الوقت من الإنترنت (مهم جداً)
+    configTime(gmtOffset_sec, daylightOffset_sec, "pool.ntp.org", "time.nist.gov");
+    Serial.print("Waiting for NTP time sync: ");
+    struct tm timeinfo;
+    // ننتظر حتى يتم جلب الوقت الصحيح
+    while(!getLocalTime(&timeinfo)){
+        Serial.print(".");
+        delay(500);
+    }
+    Serial.println("\nTime Synced!");
+
     initTelegram();
-    initCloud();     // تهيئة Google Sheets
-    initFirebase();  // تهيئة Firebase
+    initCloud();     
+    initFirebase();  
 }
 
 void loop() {
     unsigned long currentMillis = millis();
 
-    // 1. التحديث اللحظي للشاشة وقراءة الحساسات (كل ثانيتين)
     if (currentMillis - lastSystemTick >= SYSTEM_TICK_INTERVAL) {
         lastSystemTick = currentMillis;
 
@@ -41,25 +58,21 @@ void loop() {
         bool isFire = isFlameDetected();
         String flameStr = isFire ? "DETECTED" : "Safe";
 
-        // إرسال البيانات اللحظية للشاشة (Real-time)
+        // تحديث الشاشة اللحظي
         sendDataToFirebase(temp, hum, flameStr);
-        
-        // فحص التنبيهات
         checkSystemConditions(temp, hum, isFire);
 
-        // 2. الأرشفة التاريخية (كل فترة زمنية محددة مثل 5 دقائق)
-        // نستخدم نفس التوقيت للنظامين لضمان تطابق البيانات
+        // الأرشفة كل فترة (مثلاً 5 دقائق)
         if (currentMillis - lastDataLog >= LOG_INTERVAL) {
-            Serial.println("--- Starting Data Logging ---");
+            Serial.println("--- Logging Data ---");
             
-            // أرشفة في Google Sheets
+            // 1. إرسال لقوقل شيت (كما طلبت الاحتفاظ به)
             logDataToGoogleSheet(temp, hum, isFire);
 
-            // أرشفة في Firebase History (الدالة الجديدة)
+            // 2. إرسال لفايربيز مع التاريخ والوقت
             logHistoryToFirebase(temp, hum, flameStr);
             
             lastDataLog = currentMillis;
-            Serial.println("--- Logging Complete ---");
         }
     }
 }
