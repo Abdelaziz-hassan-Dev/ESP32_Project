@@ -54,7 +54,6 @@ function createChartConfig(label, color, minVal, maxVal) {
             plugins: {
                 legend: { labels: { color: '#fff' } },
                 tooltip: {
-                    // تحسين التلميح (Tooltip) ليظهر القيمة بوضوح عند تمرير الماوس
                     mode: 'index',
                     intersect: false,
                 }
@@ -70,39 +69,82 @@ const humCtx = document.getElementById('humChart').getContext('2d');
 const tempChart = new Chart(tempCtx, createChartConfig('Temperature History', '#ff8c00', 10, 30));
 const humChart = new Chart(humCtx, createChartConfig('Humidity History', '#00d2ff', 30, 80));
 
-// ================= استلام البيانات =================
+// ================= استلام البيانات والتحقق من الاتصال (Watchdog) =================
+
+// متغير للمؤقت (الحارس)
+let watchdogTimer;
 
 // الاستماع للبيانات من Firebase
 database.ref('/sensor').on('value', (snapshot) => {
     const data = snapshot.val();
     
     if (data) {
-        // 1. تحديث النصوص (Cards)
+        // 1. لقد وصلت بيانات! إذن نحن Online
+        showOnlineStatus();
+
+        // 2. تحديث الواجهة بالبيانات الحية
         document.getElementById("temperature").innerText = data.temperature.toFixed(1);
         document.getElementById("humidity").innerText = data.humidity.toFixed(1);
         
-        // 2. تحديث الحريق
+        // تحديث الحريق والمخططات
         updateFlameStatus(data.flame);
-
-        // 3. تحديث الرسوم البيانية
         updateChart(tempChart, data.temperature);
         updateChart(humChart, data.humidity);
+        
+        // 3. (خدعة المؤقت)
+        // قم بإلغاء المؤقت السابق لأننا استلمنا بيانات جديدة للتو
+        clearTimeout(watchdogTimer);
 
-        // 4. تحديث التوقيت وحالة الاتصال
-        updateConnectionStatus();
+        // ابدأ مؤقت جديد: إذا لم تصل بيانات أخرى خلال 6 ثواني، نفذ دالة showOfflineStatus
+        watchdogTimer = setTimeout(showOfflineStatus, 6000); 
     }
 });
+
+// دالة لإظهار أننا متصلون
+function showOnlineStatus() {
+    const dot = document.getElementById("connectionDot");
+    const text = document.getElementById("connectionText");
+    
+    dot.className = "dot online";
+    text.innerText = "Live";
+    
+    // إعادة الألوان لطبيعتها
+    document.getElementById("temperature").style.opacity = "1";
+    document.getElementById("humidity").style.opacity = "1";
+    
+    // تحديث التوقيت
+    document.getElementById("lastUpdate").innerText = getCurrentTimeShort();
+}
+
+// دالة لإظهار أننا فقدنا الاتصال
+function showOfflineStatus() {
+    const dot = document.getElementById("connectionDot");
+    const text = document.getElementById("connectionText");
+    const flameText = document.getElementById("flame");
+
+    dot.className = "dot offline";
+    text.innerText = "Offline";
+    
+    // جعل الأرقام باهتة للدلالة على أنها قديمة
+    document.getElementById("temperature").style.opacity = "0.4";
+    document.getElementById("humidity").style.opacity = "0.4";
+    
+    // تحذير في خانة الحريق
+    flameText.innerText = "No Signal";
+    flameText.style.color = "gray";
+    document.getElementById("flameCard").className = "card flame-card"; // إزالة اللون الأخضر أو الأحمر
+}
+
+// ================= دوال مساعدة =================
 
 // دالة مساعدة للحصول على الوقت بصيغة (HH:MM) فقط
 function getCurrentTimeShort() {
     const now = new Date();
-    // هذه الدالة تعيد الوقت بدون ثواني (مثلاً 10:30 PM)
     return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
 // دالة تحديث المخطط
 function updateChart(chart, value) {
-    // نستخدم الدالة الجديدة لجلب الوقت المختصر
     const timeString = getCurrentTimeShort();
     
     chart.data.labels.push(timeString);
@@ -126,7 +168,7 @@ function updateFlameStatus(status) {
     if(status === "DETECTED") {
         card.classList.remove("flame-safe");
         card.classList.add("flame-danger");
-        el.innerText = "DANGER! 🔥";
+        el.innerText = "DANGER! ⚠️";
         el.style.color = "#ff4444";
     } else {
         card.classList.remove("flame-danger");
@@ -136,25 +178,12 @@ function updateFlameStatus(status) {
     }
 }
 
-// دالة تحديث حالة الاتصال والوقت
-function updateConnectionStatus() {
-    // نستخدم نفس تنسيق الوقت المبسط هنا أيضاً
-    document.getElementById("lastUpdate").innerText = getCurrentTimeShort();
-
-    const dot = document.getElementById("connectionDot");
-    const text = document.getElementById("connectionText");
-    
-    dot.className = "dot online";
-    text.innerText = "Live";
-}
-
-// التحقق من حالة الاتصال بـ Firebase
+// التحقق من حالة اتصال المتصفح بالإنترنت (للتنقيح فقط)
 const connectedRef = firebase.database().ref(".info/connected");
 connectedRef.on("value", (snap) => {
   if (snap.val() === true) {
-    console.log("Connected to Firebase");
+    console.log("Browser connected to Firebase");
   } else {
-    document.getElementById("connectionDot").className = "dot offline";
-    document.getElementById("connectionText").innerText = "Offline";
+    console.log("Browser disconnected from Firebase");
   }
 });
