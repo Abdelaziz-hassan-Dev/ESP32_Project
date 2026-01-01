@@ -24,6 +24,11 @@
 
 ![Wiring Diagram](assets/wiring_diagram.jpg)
 
+## ⚙️ System Logic
+This flowchart illustrates how the system manages sensors, connectivity, and decision-making (Alerts vs. Logging).
+
+![System Flowchart](assets/system_flowchart.png)
+
 ## 🚀 Setup & Configuration
 
 ### 1. Hardware & Code Setup
