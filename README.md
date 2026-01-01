@@ -27,7 +27,7 @@
 ## ⚙️ System Logic
 This flowchart illustrates how the system manages sensors, connectivity, and decision-making (Alerts vs. Logging).
 
-![System Flowchart](assets/system_flowchart.jpg)
+![System Flowchart](assets/system_flowchart.svg)
 
 ## 🚀 Setup & Configuration
 
