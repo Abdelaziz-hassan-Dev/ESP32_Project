@@ -12,7 +12,6 @@ void initSensors() {
     }
 }
 
-// الدوال المستخدمة للمنطق وإرسال البيانات (Logic & Firebase)
 float getRawTemperature() {
     return dhtSensor.readTemperature();
 }
@@ -22,6 +21,6 @@ float getRawHumidity() {
 }
 
 bool isFlameDetected() {
-    // المنطق: LOW يعني تم اكتشاف الحريق في معظم الحساسات
+    // Sensor output is Active LOW (LOW means fire detected)
     return (digitalRead(FLAME_PIN) == LOW); 
 }

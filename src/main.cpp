@@ -12,17 +12,15 @@ const long SYSTEM_TICK_INTERVAL = 2000;
 
 unsigned long lastDataLog = 0;
 
-// إعدادات التوقيت (GMT offset)
-// 3600 ثانية * عدد الساعات. 
-// مثلاً للسودان/مصر (GMT+2) نضع 7200، للسعودية/شرق أفريقيا (GMT+3) نضع 10800
-const long  gmtOffset_sec = 3 * 3600; // عدل الرقم 3 حسب توقيت دولتك
-const int   daylightOffset_sec = 0;   // عادة 0 في الدول العربية
+// NTP Time settings (Adjust gmtOffset_sec for your timezone)
+const long  gmtOffset_sec = 3 * 3600; 
+const int   daylightOffset_sec = 0;
 
 void setup() {
     Serial.begin(115200);
     initSensors();
     
-    // 1. الاتصال بالواي فاي
+    // WiFi Connection
     WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
     Serial.print("Connecting to WiFi");
     while (WiFi.status() != WL_CONNECTED) {
@@ -31,11 +29,12 @@ void setup() {
     }
     Serial.println("\nConnected!");
 
-    // 2. ضبط الوقت من الإنترنت (مهم جداً)
+    // Valid system time is critical for historical data logging
     configTime(gmtOffset_sec, daylightOffset_sec, "pool.ntp.org", "time.nist.gov");
     Serial.print("Waiting for NTP time sync: ");
     struct tm timeinfo;
-    // ننتظر حتى يتم جلب الوقت الصحيح
+    
+    // Blocking wait until time is synced to avoid invalid timestamps in logs
     while(!getLocalTime(&timeinfo)){
         Serial.print(".");
         delay(500);
@@ -50,6 +49,7 @@ void setup() {
 void loop() {
     unsigned long currentMillis = millis();
 
+    // Non-blocking delay for system loop
     if (currentMillis - lastSystemTick >= SYSTEM_TICK_INTERVAL) {
         lastSystemTick = currentMillis;
 
@@ -58,18 +58,18 @@ void loop() {
         bool isFire = isFlameDetected();
         String flameStr = isFire ? "DETECTED" : "Safe";
 
-        // تحديث الشاشة اللحظي
+        // Real-time updates for the dashboard
         sendDataToFirebase(temp, hum, flameStr);
         checkSystemConditions(temp, hum, isFire);
 
-        // الأرشفة كل فترة (مثلاً 5 دقائق)
+        // Periodic historical logging (e.g., every 5 minutes)
         if (currentMillis - lastDataLog >= LOG_INTERVAL) {
             Serial.println("--- Logging Data ---");
             
-            // 1. إرسال لقوقل شيت (كما طلبت الاحتفاظ به)
+            // 1. Log to Google Sheets (External backup)
             logDataToGoogleSheet(temp, hum, isFire);
 
-            // 2. إرسال لفايربيز مع التاريخ والوقت
+            // 2. Log to Firebase History (Appends new node with timestamp)
             logHistoryToFirebase(temp, hum, flameStr);
             
             lastDataLog = currentMillis;

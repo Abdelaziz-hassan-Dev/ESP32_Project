@@ -1,4 +1,4 @@
- /* إعدادات عامة والخطوط */
+/* Global Reset & Fonts */
 body {
     font-family: 'Poppins', sans-serif;
     background-color: #1a1a2e;
@@ -12,7 +12,7 @@ body {
     overflow-x: hidden;
 }
 
-/* خلفية جمالية (Shapes) */
+/* Background Aesthetics (Ambient Shapes) */
 .background {
     position: fixed;
     top: 0;
@@ -43,12 +43,12 @@ body {
     background: #00d2ff;
 }
 
-/* الحاوية الرئيسية */
+/* Main Container (Glassmorphism Effect) */
 .container {
     width: 90%;
     max-width: 800px;
     background: rgba(255, 255, 255, 0.05);
-    backdrop-filter: blur(20px); /* تأثير الزجاج */
+    backdrop-filter: blur(20px); 
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 20px;
@@ -57,7 +57,7 @@ body {
     margin: 20px 0;
 }
 
-/* الرأس */
+/* Header Section */
 header {
     display: flex;
     justify-content: space-between;
@@ -76,7 +76,7 @@ h2 {
     gap: 15px;
 }
 
-/* حالة الاتصال */
+/* Connection Status Indicator */
 .status-indicator {
     display: flex;
     align-items: center;
@@ -103,7 +103,7 @@ h2 {
     margin-top: 5px;
 }
 
-/* شبكة البطاقات */
+/* Cards Grid Layout */
 .cards-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -141,12 +141,12 @@ h2 {
     color: #ccc;
 }
 
-/* ألوان الأيقونات */
+/* Icon Colors */
 .temp-card .icon { color: #ff8c00; }
 .hum-card .icon { color: #00d2ff; }
 .flame-card .icon { color: #ff4444; }
 
-/* حالات الحريق */
+/* Fire Status Styles & Animation */
 .flame-safe { border-bottom: 4px solid #00c851; }
 .flame-danger { 
     border-bottom: 4px solid #ff4444;
@@ -160,7 +160,7 @@ h2 {
     100% { box-shadow: 0 0 0 0 rgba(255, 68, 68, 0); }
 }
 
-/* الرسوم البيانية */
+/* Charts Container */
 .charts-container {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));

@@ -1,9 +1,10 @@
 #include "cloud_manager.h"
-// نحتاج شهادة SSL أو نتجاهلها (الأسهل للمشاريع الطلابية التجاهل)
+
 WiFiClientSecure secureClient;
 
 void initCloud() {
-    secureClient.setInsecure(); // السماح بالاتصال بجوجل دون التحقق من الشهادة المعقدة
+    // Allow insecure connection for Google Scripts (simplifies SSL handling)
+    secureClient.setInsecure(); 
 }
 
 void logDataToGoogleSheet(float temp, float hum, bool flameStatus) {
@@ -14,24 +15,21 @@ void logDataToGoogleSheet(float temp, float hum, bool flameStatus) {
 
     HTTPClient http;
     
-    // تجهيز الرابط مع البيانات
-    // الشكل النهائي: URL?temp=25.5&hum=60.2&fire=Safe
+    // Construct GET request URL with query parameters
     String url = String(G_SCRIPT_URL) + "?temp=" + String(temp, 1) + 
                  "&hum=" + String(hum, 1) + 
                  "&fire=" + (flameStatus ? "FIRE!" : "Safe");
 
     Serial.print("Sending data to Google Sheets...");
     
-    // بدء الاتصال
-    http.begin(secureClient, url); // استخدام secureClient مهم جداً لأن جوجل https
+    http.begin(secureClient, url); 
     
-    // إرسال الطلب ومتابعة إعادة التوجيه (Redirection) لأن جوجل يقوم بذلك
+    // Essential for Google Apps Script as it redirects requests
     http.setFollowRedirects(HTTPC_STRICT_FOLLOW_REDIRECTS);
     
-    int httpCode = http.GET(); // نستخدم GET لأننا أعددنا doGet في السكربت
+    int httpCode = http.GET(); 
     
     if (httpCode > 0) {
-        // تم استلام رد
         String payload = http.getString();
         Serial.println("Done. Response: " + payload);
     } else {

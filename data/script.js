@@ -1,4 +1,4 @@
-// 1. إعدادات Firebase
+// 1. Firebase Configuration
 const firebaseConfig = {
     apiKey: "AIzaSyDDdgCi-ZwiVJN9xIBd-BsopL8tWbnfZWo",
     authDomain: "esp32-ce491.firebaseapp.com",
@@ -9,11 +9,11 @@ const firebaseConfig = {
     appId: "1:1012960274280:web:84a6c1800fb722cb6d58dd"
 };
   
-// تهيئة Firebase
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// ================= إعدادات الرسوم البيانية (Charts) =================
+// ================= Chart Configuration =================
 
 function createChartConfig(label, color, minVal, maxVal) {
     return {
@@ -62,45 +62,43 @@ function createChartConfig(label, color, minVal, maxVal) {
     };
 }
 
-// إنشاء المخططات
+// Chart Initialization
 const tempCtx = document.getElementById('tempChart').getContext('2d');
 const humCtx = document.getElementById('humChart').getContext('2d');
 
 const tempChart = new Chart(tempCtx, createChartConfig('Temperature History', '#ff8c00', 10, 30));
 const humChart = new Chart(humCtx, createChartConfig('Humidity History', '#00d2ff', 30, 80));
 
-// ================= استلام البيانات والتحقق من الاتصال (Watchdog) =================
+// ================= Data Listener & Watchdog Logic =================
 
-// متغير للمؤقت (الحارس)
 let watchdogTimer;
 
-// الاستماع للبيانات من Firebase
+// Main Firebase Listener (Real-time updates)
 database.ref('/sensor').on('value', (snapshot) => {
     const data = snapshot.val();
     
     if (data) {
-        // 1. لقد وصلت بيانات! إذن نحن Online
+        // 1. Data received indicates system is Online
         showOnlineStatus();
 
-        // 2. تحديث الواجهة بالبيانات الحية
+        // 2. Update UI elements
         document.getElementById("temperature").innerText = data.temperature.toFixed(1);
         document.getElementById("humidity").innerText = data.humidity.toFixed(1);
         
-        // تحديث الحريق والمخططات
         updateFlameStatus(data.flame);
         updateChart(tempChart, data.temperature);
         updateChart(humChart, data.humidity);
         
-        // 3. (خدعة المؤقت)
-        // قم بإلغاء المؤقت السابق لأننا استلمنا بيانات جديدة للتو
+        // 3. Watchdog Reset
+        // Clear previous timer as we just received a heartbeat
         clearTimeout(watchdogTimer);
 
-        // ابدأ مؤقت جديد: إذا لم تصل بيانات أخرى خلال 6 ثواني، نفذ دالة showOfflineStatus
+        // Set new timeout: if no data for 15s, mark system as Offline
         watchdogTimer = setTimeout(showOfflineStatus, 15000); 
     }
 });
 
-// دالة لإظهار أننا متصلون
+// UI State: Online
 function showOnlineStatus() {
     const dot = document.getElementById("connectionDot");
     const text = document.getElementById("connectionText");
@@ -108,15 +106,14 @@ function showOnlineStatus() {
     dot.className = "dot online";
     text.innerText = "Live";
     
-    // إعادة الألوان لطبيعتها
+    // Restore opacity
     document.getElementById("temperature").style.opacity = "1";
     document.getElementById("humidity").style.opacity = "1";
     
-    // تحديث التوقيت
     document.getElementById("lastUpdate").innerText = getCurrentTimeShort();
 }
 
-// دالة لإظهار أننا فقدنا الاتصال
+// UI State: Offline
 function showOfflineStatus() {
     const dot = document.getElementById("connectionDot");
     const text = document.getElementById("connectionText");
@@ -125,32 +122,31 @@ function showOfflineStatus() {
     dot.className = "dot offline";
     text.innerText = "Offline";
     
-    // جعل الأرقام باهتة للدلالة على أنها قديمة
+    // Dim values to indicate stale data
     document.getElementById("temperature").style.opacity = "0.4";
     document.getElementById("humidity").style.opacity = "0.4";
     
-    // تحذير في خانة الحريق
+    // Update status indicators
     flameText.innerText = "No Signal";
     flameText.style.color = "gray";
-    document.getElementById("flameCard").className = "card flame-card"; // إزالة اللون الأخضر أو الأحمر
+    document.getElementById("flameCard").className = "card flame-card"; 
 }
 
-// ================= دوال مساعدة =================
+// ================= Helper Functions =================
 
-// دالة مساعدة للحصول على الوقت بصيغة (HH:MM) فقط
+// Returns time in HH:MM format
 function getCurrentTimeShort() {
     const now = new Date();
     return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 }
 
-// دالة تحديث المخطط
 function updateChart(chart, value) {
     const timeString = getCurrentTimeShort();
     
     chart.data.labels.push(timeString);
     chart.data.datasets[0].data.push(value);
 
-    // الاحتفاظ بآخر 20 قراءة
+    // Keep last 20 data points (Rolling window)
     if(chart.data.labels.length > 20) {
         chart.data.labels.shift();
         chart.data.datasets[0].data.shift();
@@ -158,7 +154,6 @@ function updateChart(chart, value) {
     chart.update();
 }
 
-// دالة معالجة حالة الحريق
 function updateFlameStatus(status) {
     const el = document.getElementById("flame");
     const card = document.getElementById("flameCard");
@@ -178,7 +173,7 @@ function updateFlameStatus(status) {
     }
 }
 
-// التحقق من حالة اتصال المتصفح بالإنترنت (للتنقيح فقط)
+// Browser connection status (Debug only)
 const connectedRef = firebase.database().ref(".info/connected");
 connectedRef.on("value", (snap) => {
   if (snap.val() === true) {

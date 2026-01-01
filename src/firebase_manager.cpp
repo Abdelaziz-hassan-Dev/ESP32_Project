@@ -25,57 +25,50 @@ void initFirebase() {
     Firebase.reconnectWiFi(true);
 }
 
-// دالة التحديث اللحظي (للشاشة) - لا تحتاج تاريخ
+// Updates the Dashboard UI (Throttled to prevent flooding)
 void sendDataToFirebase(float t, float h, String flameStatus) {
-    // نرسل فقط إذا مر وقت كافٍ (مثلاً 2 ثانية)
     if (Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 2000 || sendDataPrevMillis == 0)) {
         sendDataPrevMillis = millis();
 
-        // إنشاء كائن JSON
         FirebaseJson json;
         
-        // إضافة البيانات للحزمة
         if (!isnan(t)) json.set("temperature", t);
         if (!isnan(h)) json.set("humidity", h);
         json.set("flame", flameStatus);
 
-        // إرسال الحزمة مرة واحدة إلى المسار الرئيسي "/sensor"
-        // نستخدم updateNode بدلاً من set لأنه أخف، أو setJSON
+        // Use updateNode to overwrite the current state at "/sensor"
         Firebase.RTDB.updateNode(&fbdo, "/sensor", &json);
     }
 }
 
-// دالة مساعدة للحصول على الوقت الحالي كنص منسق
+// Helper to format timestamp for logs
 String getFormattedTime() {
     struct tm timeinfo;
     if(!getLocalTime(&timeinfo)){
         return "Time Error";
     }
     char timeStringBuff[50];
-    // الصيغة: السنة-الشهر-اليوم الساعة:الدقيقة:الثانية
-    // مثال: 2024-05-20 14:30:05
+    // Format: YYYY-MM-DD HH:MM:SS
     strftime(timeStringBuff, sizeof(timeStringBuff), "%Y-%m-%d %H:%M:%S", &timeinfo);
     return String(timeStringBuff);
 }
 
-// دالة الأرشفة الجديدة
+// Appends data to historical logs
 void logHistoryToFirebase(float t, float h, String flameStatus) {
     if (Firebase.ready() && signupOK) {
         FirebaseJson json;
         
-        // البيانات
         if (!isnan(t)) json.set("temperature", t);
         if (!isnan(h)) json.set("humidity", h);
         json.set("flame", flameStatus);
         
-        // الزمن (أهم إضافة)
-        // الآن سيرسل التاريخ كنص مقروء بدلاً من timestamp غامض
+        // Add server-side readable timestamp
         String timestamp = getFormattedTime();
         json.set("datetime", timestamp); 
 
         Serial.print("Appending to History (at " + timestamp + ")... ");
         
-        // استخدام push لحفظ السجل الجديد
+        // Use pushJSON to append a new child node to "/history"
         if (Firebase.RTDB.pushJSON(&fbdo, "/history", &json)) {
             Serial.println("Done!");
         } else {

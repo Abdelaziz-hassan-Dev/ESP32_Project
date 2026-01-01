@@ -5,13 +5,12 @@
 #include <Firebase_ESP_Client.h>
 #include "config.h"
 
-// تعريف الدوال
 void initFirebase();
 
-// الدالة القديمة: للتحديث اللحظي (للشاشة)
+// Updates the real-time node for the dashboard (Overwrites previous value)
 void sendDataToFirebase(float temp, float hum, String flameStatus);
 
-// [جديد] الدالة الجديدة: للحفظ التاريخي (بديل Google Sheets)
+// Appends a new entry to the historical log (Push operation)
 void logHistoryToFirebase(float temp, float hum, String flameStatus);
 
 #endif

@@ -3,13 +3,13 @@
 WiFiClientSecure client;
 UniversalTelegramBot bot(BOT_TOKEN, client);
 
-// متغيرات لحفظ وقت آخر تنبيه (لمنع الإزعاج)
+// Cooldown timers to prevent alert flooding
 unsigned long lastTempAlert = 0;
 unsigned long lastHumAlert = 0;
 unsigned long lastFlameAlert = 0;
 
 void initTelegram() {
-    // التلقرام يتطلب اتصال آمن، ولتسهيل الأمر في المشاريع نجعل الشهادة غير مطلوبة
+    // Bypass SSL certificate validation for simplicity in this prototype
     client.setInsecure();
 }
 
@@ -20,17 +20,16 @@ void sendTelegramMessage(String message) {
 void checkSystemConditions(float temp, float hum, bool flame) {
     unsigned long currentMillis = millis();
 
-    // 1. منطق الحريق (الأولوية القصوى)
+    // 1. Fire Logic (High Priority)
     if (flame) {
         if (currentMillis - lastFlameAlert > FLAME_COOLDOWN) {
             String msg = "⚠️ Fire Detected! ⚠️\n";
-            //msg += "Please check the area immediately.";
             sendTelegramMessage(msg);
             lastFlameAlert = currentMillis;
         }
     }
 
-    // 2. منطق الحرارة
+    // 2. Temperature Logic
     if (!isnan(temp) && temp > TEMP_HIGH_LIMIT) {
         if (currentMillis - lastTempAlert > ALARM_COOLDOWN) {
             String msg = "⚠️ High Temperature Alert!⚠️\n";
@@ -41,7 +40,7 @@ void checkSystemConditions(float temp, float hum, bool flame) {
         }
     }
 
-    // 3. منطق الرطوبة
+    // 3. Humidity Logic
     if (!isnan(hum) && hum > HUM_HIGH_LIMIT) {
         if (currentMillis - lastHumAlert > ALARM_COOLDOWN) {
             String msg = "⚠️ High Humidity Alert! ⚠️\n";
