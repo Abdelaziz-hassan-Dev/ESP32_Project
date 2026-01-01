@@ -17,6 +17,11 @@
     * **Firebase:** For real-time dashboard sync.
     * **Google Sheets:** For long-term history logging.
 
+## 🎥 Live Demo
+Click the image below to watch the system in action:
+
+[![Watch the Demo](assets/demo_thumbnail.jpg)](https://youtube.com/shorts/E3eaTCnOFkE?si=o2KrPO3ONYSjpmWO)
+
 ## 🛠️ Hardware
 * **ESP32 DevKit V1**
 * **DHT22 Sensor** (Pin D27)
