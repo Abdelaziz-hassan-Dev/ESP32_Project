@@ -27,11 +27,22 @@ void initFirebase() {
 
 // دالة التحديث اللحظي (للشاشة) - لا تحتاج تاريخ
 void sendDataToFirebase(float t, float h, String flameStatus) {
+    // نرسل فقط إذا مر الوقت المحدد أو لم نرسل من قبل
     if (Firebase.ready() && signupOK && (millis() - sendDataPrevMillis > 2000 || sendDataPrevMillis == 0)) {
         sendDataPrevMillis = millis();
-        if (!isnan(t)) Firebase.RTDB.setFloat(&fbdo, "/sensor/temperature", t);
-        if (!isnan(h)) Firebase.RTDB.setFloat(&fbdo, "/sensor/humidity", h);
-        Firebase.RTDB.setString(&fbdo, "/sensor/flame", flameStatus);
+
+        // إنشاء كائن JSON لجمع البيانات وإرسالها مرة واحدة
+        FirebaseJson json;
+        
+        if (!isnan(t)) json.set("temperature", t);
+        if (!isnan(h)) json.set("humidity", h);
+        json.set("flame", flameStatus);
+
+        // استخدام updateNode بدلاً من set المتعددة
+        // هذا يقلل وقت الاتصال بالإنترنت إلى الثلث
+        if (!Firebase.RTDB.updateNode(&fbdo, "/sensor", &json)) {
+            Serial.println(fbdo.errorReason());
+        }
     }
 }
 

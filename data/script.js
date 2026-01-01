@@ -96,7 +96,7 @@ database.ref('/sensor').on('value', (snapshot) => {
         clearTimeout(watchdogTimer);
 
         // ابدأ مؤقت جديد: إذا لم تصل بيانات أخرى خلال 6 ثواني، نفذ دالة showOfflineStatus
-        watchdogTimer = setTimeout(showOfflineStatus, 6000); 
+        watchdogTimer = setTimeout(showOfflineStatus, 9000); 
     }
 });
 
