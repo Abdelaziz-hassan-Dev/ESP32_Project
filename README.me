@@ -1,84 +1,74 @@
-# 🛡️ Smart IoT Guardian: Environmental Monitoring & Safety System
+# 🛡️ Smart IoT Guardian
 
-![Project Status](https://img.shields.io/badge/Status-Active-success)
+![Status](https://img.shields.io/badge/Status-Active-success)
 ![Platform](https://img.shields.io/badge/Platform-ESP32-blue)
-![Framework](https://img.shields.io/badge/Framework-Arduino%20%7C%20PlatformIO-orange)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-## 📖 Overview
-**Smart IoT Guardian** is a robust, multi-cloud IoT solution designed to monitor environmental conditions and detect fire hazards in real-time. Built for the **CE491 Graduation Project**, this system integrates advanced cloud connectivity to ensure safety and data accessibility from anywhere.
+![Dashboard Preview](assets/dashboard_live_view.png)
 
-The system monitors **Temperature**, **Humidity**, and **Flame status**, providing instant visualization via a modern Web Dashboard, logging data to Google Sheets for analysis, and sending critical alerts via Telegram.
+## 📖 About
+**Smart IoT Guardian** is a real-time environmental monitoring system built for the **CE491 Graduation Project**. It detects fire hazards, monitors temperature/humidity, and syncs data instantly to a web dashboard, Telegram, and Google Sheets.
 
-## ✨ Key Features
-* **🔥 Real-time Fire Detection:** Instant flame sensor reading with immediate alert protocols.
-* **📊 Live Web Dashboard:** A beautiful, responsive web interface (Glassmorphism UI) displaying real-time gauges and historical charts using **Chart.js**.
-* **📱 Instant Alerts:** Sends critical push notifications to **Telegram** when thresholds are breached (High Temp/Hum or Fire Detected).
-* **☁️ Multi-Cloud Sync:**
-    * **Firebase RTDB:** For sub-second latency data synchronization with the dashboard.
-    * **Google Sheets:** For long-term data logging and reporting.
-* **⏱️ Precision Timing:** Auto-syncs time via NTP servers for accurate data timestamping.
+## ✨ Features
+* **🔥 Fire Detection:** Immediate alerts via Flame Sensor.
+* **📊 Web Dashboard:** Real-time monitoring with historical charts (Glassmorphism UI).
+* **📱 Telegram Alerts:** Push notifications for critical events (Fire, High Temp).
+* **☁️ Dual Cloud Logging:**
+    * **Firebase:** For real-time dashboard sync.
+    * **Google Sheets:** For long-term history logging.
 
-## 🛠️ Hardware Architecture
-* **Microcontroller:** ESP32 Development Board (DOIT DEVKIT V1).
-* **Sensors:**
-    * DHT22 (Temperature & Humidity) -> Connected to **GPIO 27**.
-    * IR Flame Sensor (Digital Output) -> Connected to **GPIO 14**.
-* **Connectivity:** WiFi module (Built-in ESP32).
+## 🛠️ Hardware
+* **ESP32 DevKit V1**
+* **DHT22 Sensor** (Pin D27)
+* **IR Flame Sensor** (Pin D14)
 
-## 💻 Tech Stack
-* **Embedded C++:** Core logic using the Arduino Framework via PlatformIO.
-* **Frontend:** HTML5, CSS3 (Custom animations), JavaScript (ES6), Chart.js.
-* **Backend / Cloud Services:**
-    * Google Firebase (Realtime Database).
-    * Google Apps Script (Web App for Sheets integration).
-    * Telegram Bot API.
+![Wiring Diagram](assets/wiring_diagram.jpg)
 
-## 🚀 Installation & Setup
+## 🚀 Setup & Configuration
 
-### 1. Prerequisites
-* [VS Code](https://code.visualstudio.com/) with [PlatformIO](https://platformio.org/) extension installed.
-* Git.
+### 1. Hardware & Code Setup
+1. Clone the repo and open in **VS Code** with **PlatformIO**.
+2. **Rename Config File:**
+   * Go to `include/` folder.
+   * Rename `config_example.h` to `config.h`.
+   * Open `config.h` and fill in your details:
+     * WiFi Credentials.
+     * Firebase API Key & URL.
+     * Telegram Bot Token & Chat ID.
+     * Google Script URL.
 
-### 2. Cloning the Repository
-```bash
-git clone [https://github.com/abdelaziz-hassan-dev/ESP32_Project.git](https://github.com/abdelaziz-hassan-dev/ESP32_Project.git)
-cd ESP32_Project
+### 2. Dashboard Setup (Frontend)
+1. Go to `data/` folder.
+2. Open `script.js`.
+3. Locate the **Firebase Configuration** section at the top.
+4. Replace the placeholder values with your own Firebase Web App config keys.
 
-```
-
-### Uploading Code
-
-1. Connect your ESP32 via USB.
-2. Open PlatformIO in VS Code.
-3. Click the **Upload** arrow button (➡️) at the bottom toolbar.
-4. Open the **Serial Monitor** (ensure baud rate is set to **115200**) to verify connection.
+### 3. Uploading
+1. Connect ESP32 via USB.
+2. Upload the **Firmware** (Code) via PlatformIO (➡️ button).
+3. Upload the **Filesystem Image** (to save HTML/CSS to ESP32).
+4. Monitor output at Baud Rate **115200**.
 
 ## 📂 Project Structure
 
-```
-├── data/                  # Web App Files (HTML, CSS, JS)
-├── include/               # Header files (.h)
-│   ├── config.h           # Configuration file (You must create this!)
-│   ├── cloud_manager.h
-│   ├── firebase_manager.h
-│   ├── sensor_manager.h
-│   └── telegram_manager.h
-├── src/                   # Source files (.cpp)
-│   ├── main.cpp           # Entry point
-│   └── ...                # Implementation files
-├── platformio.ini         # Project Configuration
-└── README.md              # Project Documentation
-
-```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request.
-
-## 📄 License
-
-This project is open-source and available under the [MIT License](https://www.google.com/search?q=LICENSE).
-
----
-*Developed by Abdelaziz Hassan 
+```text
+ESP32_Project/
+├── .pio/                  # PlatformIO build files
+├── data/                  # Web Dashboard Files (Uploaded to SPIFFS/LittleFS)
+│   ├── index.html         # Main Dashboard Interface
+│   ├── style.css          # Styling & Animations
+│   └── script.js          # Logic & Firebase Integration (Edit Config Here!)
+├── include/               # Header Files
+│   ├── cloud_manager.h    # Google Sheets handling
+│   ├── config.h           # Sensitive Config (Renamed from config_example.h)
+│   ├── firebase_manager.h # Firebase RTDB handling
+│   ├── sensor_manager.h   # DHT & Flame sensor logic
+│   └── telegram_manager.h # Bot alerts handling
+├── src/                   # Source Code
+│   ├── main.cpp           # Main loop & System orchestration
+│   ├── cloud_manager.cpp
+│   ├── firebase_manager.cpp
+│   ├── sensor_manager.cpp
+│   └── telegram_manager.cpp
+├── platformio.ini         # Project Dependencies & Settings
+└── README.md              # Documentation
