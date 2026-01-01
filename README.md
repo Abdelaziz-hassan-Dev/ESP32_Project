@@ -25,7 +25,7 @@
 ![Wiring Diagram](assets/wiring_diagram.jpg)
 
 ## ⚙️ System Logic
-This flowchart illustrates how the system manages sensors, connectivity, and decision-making (Alerts vs. Logging).
+This flowchart illustrates how the system manages sensors, connectivity, and decision-making (Main loop).
 
 ![System Flowchart](assets/system_flowchart.svg)
 
