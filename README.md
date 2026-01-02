@@ -1,4 +1,4 @@
-# 🛡️ Smart IoT Guardian
+# 🛡️ IoT-Based Safety Module for Electric Heaters
 
 ![Status](https://img.shields.io/badge/Status-Active-success)
 ![Platform](https://img.shields.io/badge/Platform-ESP32-blue)
@@ -7,7 +7,7 @@
 ![Dashboard Preview](assets/dashboard_live_view.png)
 
 ## 📖 About
-**Smart IoT Guardian** is a real-time environmental monitoring system built for the **CE491 Graduation Project**. It detects fire hazards, monitors temperature/humidity, and syncs data instantly to a web dashboard, Telegram, and Google Sheets.
+**IoT-Based Safety Module for Electric Heaters** is a real-time environmental monitoring system built for the **CE491 Graduation Project**. It detects fire hazards, monitors temperature/humidity, and syncs data instantly to a web dashboard, Telegram, and Google Sheets.
 
 ## ✨ Features
 * **🔥 Fire Detection:** Immediate alerts via Flame Sensor.
