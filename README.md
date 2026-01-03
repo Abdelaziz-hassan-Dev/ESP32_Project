@@ -82,6 +82,7 @@ ESP32_Project/
 │   └── telegram_manager.cpp
 ├── platformio.ini         # Project Dependencies & Settings
 └── README.md              # Documentation
+```
 
 ## 🎥 Live Demo
 Click the image below to watch the system in action:
