@@ -17,6 +17,11 @@
     * **Firebase:** For real-time dashboard sync.
     * **Google Sheets:** For long-term history logging.
 
+## 🏗️ System Architecture
+This diagram illustrates the high-level communication between the ESP32, sensors, and the cloud platforms (Firebase, Telegram, Google Sheets).
+
+![System Architecture](assets/system_architecture.png)
+
 ## 🛠️ Hardware
 * **ESP32 DevKit V1**
 * **DHT22 Sensor** (Pin D27)
@@ -77,7 +82,6 @@ ESP32_Project/
 │   └── telegram_manager.cpp
 ├── platformio.ini         # Project Dependencies & Settings
 └── README.md              # Documentation
-
 
 ## 🎥 Live Demo
 Click the image below to watch the system in action:
