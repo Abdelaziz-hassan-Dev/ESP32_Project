@@ -13,7 +13,7 @@ function doGet(e) {
     result = 'No Parameters';
   } else {
     // --- 1. Spreadsheet Configuration ---
-    var sheet_id = '1WbGVnkVvcowSNltzW4wsF5BOc3nCBZLmINu7dm1bI6A'; 
+    var sheet_id = 'YOUR_SPREADSHEET_ID_HERE';
     var sheet = SpreadsheetApp.openById(sheet_id).getActiveSheet();
     
     // --- 2. Prepare New Row Data ---
