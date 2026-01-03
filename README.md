@@ -36,16 +36,17 @@ This flowchart illustrates how the system manages sensors, connectivity, and dec
 
 ## 🚀 Setup & Configuration
 
-### 1. Hardware & Code Setup
-1. Clone the repo and open in **VS Code** with **PlatformIO**.
-2. **Rename Config File:**
-   * Go to `include/` folder.
-   * Rename `config_example.h` to `config.h`.
-   * Open `config.h` and fill in your details:
-     * WiFi Credentials.
-     * Firebase API Key & URL.
-     * Telegram Bot Token & Chat ID.
-     * Google Script URL.
+### 1. Firmware (ESP32)
+* Rename `include/config_example.h` to `config.h`.
+* Update `config.h` with your **WiFi**, **Firebase**, and **Telegram** credentials.
+
+### 2. Backend (Google Sheets)
+1. Create a Google Sheet and open **Extensions > Apps Script**.
+2. Paste the code from `google_script/code.gs` and replace `YOUR_SPREADSHEET_ID`.
+3. Deploy as **Web App** (Access: "Anyone") and copy the **URL** to `config.h`.
+
+### 3. Frontend (Dashboard)
+* Open `data/script.js` and update the **Firebase Configuration** section with your project keys.
 
 ### 2. Dashboard Setup (Frontend)
 1. Go to `data/` folder.
@@ -63,11 +64,12 @@ This flowchart illustrates how the system manages sensors, connectivity, and dec
 
 ```text
 ESP32_Project/
-├── .pio/                  # PlatformIO build files
 ├── data/                  # Web Dashboard Files (Uploaded to SPIFFS/LittleFS)
 │   ├── index.html         # Main Dashboard Interface
 │   ├── style.css          # Styling & Animations
 │   └── script.js          # Logic & Firebase Integration (Edit Config Here!)
+├── google_script/         # Backend Script
+│   └── code.gs            # Google Apps Script for logging to Sheets
 ├── include/               # Header Files
 │   ├── cloud_manager.h    # Google Sheets handling
 │   ├── config.h           # Sensitive Config (Renamed from config_example.h)
