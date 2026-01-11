@@ -4,10 +4,10 @@
 ![Platform](https://img.shields.io/badge/Platform-ESP32-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-![Dashboard Preview](assets/dashboard_live_view.png)
-
 ## 📖 About
 **IoT-Based Safety Module for Electric Heaters** is a real-time environmental monitoring system. It detects fire hazards, monitors temperature/humidity, and syncs data instantly to a web dashboard, Telegram, and Google Sheets.
+
+![System Architecture](assets/system_architecture.png)
 
 ## ✨ Features
 * **🔥 Fire Detection:** Immediate alerts via Flame Sensor.
@@ -16,11 +16,12 @@
 * **☁️ Dual Cloud Logging:**
     * **Firebase:** For real-time dashboard sync.
     * **Google Sheets:** For long-term history logging.
+![Dashboard Preview](assets/dashboard_live_view.png)
 
 ## 🏗️ System Architecture
 This diagram illustrates the high-level communication between the ESP32, sensors, and the cloud platforms (Firebase, Telegram, Google Sheets).
 
-![System Architecture](assets/system_architecture.png)
+
 
 ## 🛠️ Hardware
 * **ESP32 DevKit V1**
