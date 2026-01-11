@@ -16,6 +16,7 @@
 * **☁️ Dual Cloud Logging:**
     * **Firebase:** For real-time dashboard sync.
     * **Google Sheets:** For long-term history logging.
+    * 
 ![Dashboard Preview](assets/dashboard_live_view.png)
 
 ## 🏗️ System Architecture
