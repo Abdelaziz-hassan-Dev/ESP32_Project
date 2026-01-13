@@ -66,26 +66,24 @@ This flowchart illustrates how the system manages sensors, connectivity, and dec
 
 ```text
 ESP32_Project/
-├── data/                  # Web Dashboard Files (Uploaded to SPIFFS/LittleFS)
-│   ├── index.html         # Main Dashboard Interface
-│   ├── style.css          # Styling & Animations
-│   └── script.js          # Logic & Firebase Integration (Edit Config Here!)
-├── google_script/         # Backend Script
-│   └── code.gs            # Google Apps Script for logging to Sheets
-├── include/               # Header Files
-│   ├── cloud_manager.h    # Google Sheets handling
-│   ├── config.h           # Sensitive Config (Renamed from config_example.h)
-│   ├── firebase_manager.h # Firebase RTDB handling
-│   ├── sensor_manager.h   # DHT & Flame sensor logic
-│   └── telegram_manager.h # Bot alerts handling
-├── src/                   # Source Code
-│   ├── main.cpp           # Main loop & System orchestration
-│   ├── cloud_manager.cpp
-│   ├── firebase_manager.cpp
-│   ├── sensor_manager.cpp
-│   └── telegram_manager.cpp
-├── platformio.ini         # Project Dependencies & Settings
-└── README.md              # Documentation
+├── data/                              # Web Dashboard Files
+│ ├── index.html
+│ ├── style.css
+│ └── script.js
+├── google_script/                     # Google Apps Script for logging to Sheets
+│ └── code.gs
+├── include/ # Header Files
+│ ├── cloud_manager.h
+│ ├── config.h                         #configuration file for API & HW
+│ ├── firebase_manager.h
+│ ├── sensor_manager.h
+│ └── telegram_manager.h
+├── src/                               # Source Code
+│ ├── main.cpp
+│ ├── cloud_manager.cpp
+│ ├── firebase_manager.cpp
+│ ├── sensor_manager.cpp
+│ └── telegram_manager.cpp
 ```
 
 ## 🎥 Live Demo
