@@ -5,12 +5,13 @@
 #include <UniversalTelegramBot.h>
 #include <ArduinoJson.h>
 #include "config.h"
+#include "rtos_shared.h"   // ← جديد
 
 void initTelegram();
 
-// Evaluates sensor data against thresholds and triggers alerts if needed
-void checkSystemConditions(float temp, float hum, bool flame);
+// المهمة الجديدة — تُسجَّل في main.cpp
+void vTaskAlertEngine(void* pvParameters);
 
-void sendTelegramMessage(String message);
+// checkSystemConditions حُذفت — المهمة تقرأ من Queue مباشرة
 
 #endif
