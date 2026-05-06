@@ -59,7 +59,7 @@ extern TimerHandle_t xLogTimer; // ينطلق كل LOG_INTERVAL ثانية
 // ============================================================
 // volatile يقول للمترجم: "لا تخزّن هذا في register، اقرأه من الذاكرة دائماً"
 // لأن أي مهمة ممكن تغيره في أي لحظة
-extern volatile SensorData_t g_latestSensorData;
+extern SensorData_t g_latestSensorData;
 
 // ============================================================
 // 7. دالة التهيئة — تُستدعى مرة واحدة في setup()

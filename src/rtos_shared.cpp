@@ -17,8 +17,8 @@ EventGroupHandle_t xSystemEventGroup = NULL;
 
 TimerHandle_t xLogTimer = NULL;
 
-volatile SensorData_t g_latestSensorData = {0};
-
+//volatile SensorData_t g_latestSensorData = {0};
+SensorData_t g_latestSensorData = {};
 // ============================================================
 // دالة التهيئة — تُنشئ كل شيء قبل بدء المهام
 // ============================================================
