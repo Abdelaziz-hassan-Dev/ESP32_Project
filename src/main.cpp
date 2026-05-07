@@ -105,7 +105,9 @@ void setup() {
     //  الشغل الفعلي (HTTP, SSL) صار في المهام المخصصة
     initTelegram();
     initCloud();
-    initFirebase();  // هذه ترفع BIT_FIREBASE_READY بعد signUp ناجح
+    Serial.println(">>> About to init Firebase...");
+    initFirebase();
+    Serial.println(">>> Firebase init done.");
 
     // ── 5. xRTOS_Init() ──────────────────────────────────────────────────────
     //  أهم خطوة — تُنشئ كل البنية التحتية:
@@ -237,4 +239,5 @@ void loop() {
     // لا شيء يشتغل هنا — كل الشغل في المهام
     // هذا الـ delay يمنع loop() من أكل CPU بشكل غير مفيد
     vTaskDelay(pdMS_TO_TICKS(10000));
+    Serial.printf("Free heap: %d bytes\n", ESP.getFreeHeap());
 }
