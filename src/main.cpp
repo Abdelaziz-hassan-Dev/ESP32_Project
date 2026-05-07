@@ -90,25 +90,34 @@ void setup() {
     }
     Serial.println("\nWiFi Connected! IP: " + WiFi.localIP().toString());
 
-// ── 3. NTP
-    configTime(3 * 3600, 0, "pool.ntp.org", "time.nist.gov");
+    // ── 3. إطلاق NTP (غير blocking الآن) ────────────────────────────────────
+    //  القديم: while(!getLocalTime()) يحجب setup() إلى الأبد لو NTP فشل
+    //  الجديد: configTime() تُطلق الطلب فقط، ثم vTaskWiFiWatchdog
+    //          تنتظر المزامنة وترفع BIT_NTP_SYNCED لما تنجح
+    //          vTaskHistoryLogger لن تكتب timestamps حتى يرتفع هذا الـ bit
+    const long  gmtOffset_sec     = 3 * 3600;  // UTC+3 (Istanbul/Riyadh)
+    const int   daylightOffset_sec = 0;
+    configTime(gmtOffset_sec, daylightOffset_sec, "pool.ntp.org", "time.nist.gov");
     Serial.println("NTP sync initiated (non-blocking)...");
 
-    // ── 4. xRTOS_Init() أولاً ← التغيير الجوهري
-    //  لازم يكون قبل أي initXxx() تستخدم RTOS primitives
-    xRTOS_Init();
-    Serial.println("RTOS primitives created.");
-
-    // ── 5. سيت BIT_WIFI_CONNECTED فوراً — WiFi متصل بالفعل
-    //  بدونه vTaskHistoryLogger هتستنى vTaskWiFiWatchdog يشتغل أول
-    xEventGroupSetBits(xSystemEventGroup, BIT_WIFI_CONNECTED);
-
-    // ── 6. تهيئة المكتبات — دلوقتي xSystemEventGroup موجود ✅
+    // ── 4. تهيئة المكتبات ───────────────────────────────────────────────────
+    //  هذه ما تتغير — نفس الدوال القديمة، لكنها الآن تهيّئ فقط
+    //  الشغل الفعلي (HTTP, SSL) صار في المهام المخصصة
     initTelegram();
     initCloud();
     Serial.println(">>> About to init Firebase...");
-    initFirebase();  // ← دلوقتي BIT_FIREBASE_READY هيتسيت بنجاح
+    initFirebase();
     Serial.println(">>> Firebase init done.");
+
+    // ── 5. xRTOS_Init() ──────────────────────────────────────────────────────
+    //  أهم خطوة — تُنشئ كل البنية التحتية:
+    //  • xFirebaseQueue, xAlertQueue, xHistoryQueue
+    //  • xSensorMutex, xWiFiMutex, xFirebaseMutex
+    //  • xSystemEventGroup
+    //  يجب أن تُستدعى قبل إنشاء أي مهمة لأن المهام تعتمد على هذه الـ handles
+    xRTOS_Init();
+    Serial.println("RTOS primitives created.");
+
     // ── 6. إنشاء المهام ──────────────────────────────────────────────────────
     //  xTaskCreatePinnedToCore(function, name, stack, param, priority, handle, core)
     //
