@@ -103,6 +103,9 @@ void setup() {
     // ── 4. تهيئة المكتبات ───────────────────────────────────────────────────
     //  هذه ما تتغير — نفس الدوال القديمة، لكنها الآن تهيّئ فقط
     //  الشغل الفعلي (HTTP, SSL) صار في المهام المخصصة
+
+    xRTOS_Init();
+    Serial.println("RTOS primitives created.");
     initTelegram();
     initCloud();
     Serial.println(">>> About to init Firebase...");
@@ -115,8 +118,8 @@ void setup() {
     //  • xSensorMutex, xWiFiMutex, xFirebaseMutex
     //  • xSystemEventGroup
     //  يجب أن تُستدعى قبل إنشاء أي مهمة لأن المهام تعتمد على هذه الـ handles
-    xRTOS_Init();
-    Serial.println("RTOS primitives created.");
+    // xRTOS_Init();
+    // Serial.println("RTOS primitives created.");
 
     // ── 6. إنشاء المهام ──────────────────────────────────────────────────────
     //  xTaskCreatePinnedToCore(function, name, stack, param, priority, handle, core)
